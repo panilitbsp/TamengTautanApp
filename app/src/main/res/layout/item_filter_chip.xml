@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="6dp"
+    android:layout_marginBottom="6dp"
+    android:text="FILTER"
+    android:textSize="12sp"
+    android:textColor="@color/tameng_purple"
+    app:chipBackgroundColor="@android:color/transparent"
+    app:chipStrokeColor="@color/tameng_purple"
+    app:chipStrokeWidth="1dp"
+    app:closeIconVisible="true"
+    app:closeIconTint="@color/tameng_purple"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp" />

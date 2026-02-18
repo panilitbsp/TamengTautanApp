@@ -1,0 +1,23 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.TamengTautan" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/tameng_purple</item>
+        <item name="colorPrimaryContainer">@color/tameng_purple</item>
+
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.TamengTautan" parent="Base.Theme.TamengTautan" />
+
+    <style name="TamengToolbarTitle" parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TamengToolbarTitle2" parent="@style/TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+</resources>

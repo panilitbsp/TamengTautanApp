@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- area chip + summary -->
+        <LinearLayout
+            android:id="@+id/layoutFilterInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="6dp">
+
+            <HorizontalScrollView
+                android:id="@+id/filterChipScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layoutFilterChips"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/tvFilterSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingBottom="8dp"
+                android:text="Menampilkan semua data"
+                android:textColor="@color/ls_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- kalau kosong -->
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Belum ada riwayat scan.\nProteksi akan otomatis mencatat link yang terdeteksi."
+            android:textAlignment="center"
+            android:textSize="14sp"
+            android:textColor="@color/ls_text_secondary"
+            android:visibility="gone" />
+
+        <!-- list history -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistory"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false" />
+    </LinearLayout>
+
+    <!-- bottom bar delete multi select -->
+    <LinearLayout
+        android:id="@+id/bottomDeleteBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone">
+
+        <!-- "4 dipilih" -->
+        <TextView
+            android:id="@+id/tvSelectedCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0 dipilih"
+            android:textColor="@color/ls_text_primary"
+            android:textSize="14sp" />
+
+        <!-- ikon X untuk cancel selection mode -->
+        <ImageButton
+            android:id="@+id/btnCancelSelection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:padding="8dp"
+            android:src="@drawable/baseline_cancel_24"
+            android:contentDescription="Batal"
+            app:tint="@color/tameng_purple" />
+
+        <!-- teks PILIH SEMUA (toggle select/unselect all) -->
+        <TextView
+            android:id="@+id/tvSelectAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="PILIH SEMUA"
+            android:textAllCaps="true"
+            android:textColor="@color/tameng_purple"
+            android:textSize="14sp" />
+
+        <!-- tombol HAPUS -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDeleteSelected"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HAPUS"
+            android:textAllCaps="true"
+            android:textColor="@color/tameng_purple" />
+    </LinearLayout>
+
+</FrameLayout>

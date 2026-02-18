@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_cloud"
+        android:title="Cloud"
+        android:icon="@drawable/rounded_cloud_upload_24"
+        android:iconTint="@android:color/white"
+        app:iconTint="@android:color/white"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_filter"
+        android:title="Filter"
+        android:icon="@drawable/rounded_filter_list_24"
+        android:iconTint="@android:color/white"
+        app:iconTint="@android:color/white"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="Hapus"
+        android:icon="@drawable/rounded_delete_24"
+        android:iconTint="@android:color/white"
+        app:iconTint="@android:color/white"
+        app:showAsAction="ifRoom" />
+
+</menu>

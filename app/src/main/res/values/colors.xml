@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="ls_warning_red">#FF3B30</color>          <!-- merah header -->
+    <color name="ls_text_primary">#1E1E1E</color>        <!-- hitam abu -->
+    <color name="ls_text_secondary">#5C5C5C</color> <!-- abu muda -->
+
+    <color name="light_lilac">#F5EDFB</color>
+    <color name="tameng_purple">#4F378A</color>        <!-- warna header -->
+    <color name="tameng_bottom_bg">#F0E5FF</color>   <!-- contoh warna bg bawah/nav -->
+
+</resources>
