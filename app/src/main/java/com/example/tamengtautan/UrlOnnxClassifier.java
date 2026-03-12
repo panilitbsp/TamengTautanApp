@@ -72,9 +72,9 @@ public class UrlOnnxClassifier {
     public UrlOnnxClassifier(Context context, DetectionModel model) throws IOException, OrtException {
         this.appContext = context.getApplicationContext();
 
-        // 1. Load feature_spec.json
-        String json = AssetUtils.readAssetFile(appContext, "feature_spec.json");
-        featureSpec = new Gson().fromJson(json, FeatureSpec.class);
+        // 1. Load tameng_config.json
+        String json = AssetUtils.readAssetFile(appContext, "tameng_config.json");
+        featureSpec = new com.google.gson.Gson().fromJson(json, FeatureSpec.class);
 
         // 2. Init ONNX Runtime
         env = OrtEnvironment.getEnvironment();
@@ -164,12 +164,68 @@ public class UrlOnnxClassifier {
             throw new OrtException("ONNX session belum diinisialisasi");
         }
 
-        // 0. Ambil host / domain untuk aturan tambahan
+        // 0. Ambil host / domain untuk kebutuhan log dan aturan tambahan
         String host = extractHost(url);
-        boolean trustedDomain = isTrustedDomain(host);
 
-        // 1. Ekstrak fitur dari URL → float[feature_count]
+        // =======================================================
+        // INTEGRASI WHITELIST (SISTEM, USER, & ORGANISASI KAMPUS)
+        // =======================================================
+        boolean isSystemTrusted = isTrustedDomain(host); // Cek list Shopee, WA, .ac.id, dll
+        boolean isUserWhitelisted = UserWhitelist.isTrusted(appContext, url); // Cek inputan User dari SharedPreferences
+
+        // 1. DAFTAR ORGANISASI KAMPUS (Tinggal tambahkan kata kuncinya di sini)
+        String[] daftarKampus = {
+                "himatif",
+                "bem",
+                "dpm",
+                "fosti", // Tambahkan koma dan tanda kutip untuk organisasi baru
+                "finic",
+                "kine",
+                "rapmafm",
+                "kspm"
+        };
+
+        // 2. Cek otomatis apakah URL mengandung salah satu nama di daftarKampus
+        String urlLower = url.toLowerCase(Locale.ROOT);
+        boolean isKampusAman = false;
+        for (String kataKunci : daftarKampus) {
+            if (urlLower.contains(kataKunci)) {
+                isKampusAman = true;
+                break; // Kalau sudah ketemu satu, berhenti ngecek sisanya untuk menghemat memori
+            }
+        }
+
+        // 3. Eksekusi Bypass: Jika masuk sistem, user, ATAU kampus, langsung berikan cap "Aman"
+        if (isSystemTrusted || isUserWhitelisted || isKampusAman) {
+            Log.d(TAG, "URL di-Bypass karena masuk Whitelist: " + url);
+            // Langsung hentikan proses, jadikan status "LOW" (Aman) dengan skor bahaya 0.0
+            return new Result(0.0f, "LOW", featureSpec.risk_threshold);
+        }
+        // =======================================================
+
+
+        // 1. Ekstrak fitur mentah dari URL
         float[] featureArray = FeatureExtractor.extractFeatures(url, featureSpec);
+
+        // =======================================================
+        // RUMUS NORMALISASI (SCALING) UNTUK MODEL ML BARU (KNN, dll)
+        // =======================================================
+        // Mengecek apakah file JSON baru (tameng_config.json) memiliki array mean & scale
+        if (featureSpec.scaler_mean != null && featureSpec.scaler_scale != null) {
+            for (int i = 0; i < featureArray.length; i++) {
+                float x = featureArray[i];
+                float mean = featureSpec.scaler_mean[i];
+                float scale = featureSpec.scaler_scale[i];
+
+                if (scale != 0) {
+                    featureArray[i] = (x - mean) / scale; // Menerapkan rumus Z-Score
+                } else {
+                    featureArray[i] = 0f;
+                }
+            }
+        }
+        // =======================================================
+
 
         // 2. Bentuk tensor input shape (1, feature_count)
         long[] shape = new long[]{1L, featureSpec.feature_count};
@@ -184,40 +240,29 @@ public class UrlOnnxClassifier {
             prob = extractPhishingProbability(output);
         }
 
-        // Kalau tetap gagal dapetin prob (NaN), fallback ke 0.0 biar nggak crash
+        // Fallback jika probabilitas gagal dihitung menjadi angka nyata (NaN)
         if (Float.isNaN(prob)) {
             Log.w(TAG, "Tidak bisa mengekstrak probabilitas, fallback 0.0");
             prob = 0.0f;
         }
 
-        // 3. Threshold dari JSON (konsep skripsi, misal 0.4)
+        // 3. Ambil nilai Threshold dari JSON
         float threshold = featureSpec.risk_threshold;
 
-        // 4. Tentukan label HIGH / LOW dengan mempertimbangkan domain
-        //    - prob < threshold  → LOW
-        //    - prob >= threshold → HIGH
-        //    - KECUALI kalau domain termasuk trusted dan prob tidak ekstrem,
-        //      maka kita turunkan jadi LOW (supaya Shopee/IG/WA tidak
-        //      langsung dianggap "bahaya").
+        // 4. Tentukan label HIGH / LOW
+        // Logika domain terpercaya tidak perlu lagi diletakkan di sini,
+        // karena sudah di-bypass di awal (di atas).
         String label;
         if (prob < threshold) {
             label = "LOW";
         } else {
-            // prob >= threshold
-            if (trustedDomain && prob < 0.90f) {
-                // "secara pola agak mencurigakan, tapi domain populer/terverifikasi"
-                // Untuk keperluan UX, diturunkan ke LOW.
-                label = "LOW";
-            } else {
-                label = "HIGH";
-            }
+            label = "HIGH";
         }
 
         Log.d(TAG,
                 "[CLASSIFY] model=" + (currentModel != null ? currentModel.name() : "UNKNOWN")
                         + " url=" + url
                         + " host=" + host
-                        + " trustedDomain=" + trustedDomain
                         + " prob_raw=" + prob
                         + " threshold=" + threshold
                         + " finalLabel=" + label);
