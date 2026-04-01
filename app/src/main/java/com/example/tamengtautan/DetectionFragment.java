@@ -21,6 +21,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.CheckBox;
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.slider.Slider;
@@ -246,25 +251,51 @@ public class DetectionFragment extends Fragment {
 
     // PROMINENT DISCLOSURE
     private void showAccessibilityDisclosureDialog() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Pemberitahuan Penting: Layanan Aksesibilitas")
-                .setMessage("Aplikasi TamengTautan menggunakan AccessibilityService API untuk memantau layar Anda guna memindai tautan (URL) yang muncul di aplikasi lain secara real-time. Fitur ini merupakan fungsi inti untuk mendeteksi ancaman phishing dan melindungi Anda dari tautan berbahaya.\n\n" +
-                        "Aplikasi ini mengumpulkan dan mentransmisikan data berikut melalui AccessibilityService API:\n" +
-                        "• Informasi Pribadi Lainnya (Other personal info): Berupa tautan (URL) yang terdeteksi di layar Anda.\n" +
-                        "• ID Perangkat atau pengenal lainnya (Device or other identifiers): Berupa ID unik perangkat Anda.\n\n" +
-                        "Data tersebut digunakan secara eksklusif untuk fitur deteksi phishing dan keperluan penelitian skripsi. Data dikirimkan secara aman melalui enkripsi HTTPS ke server kami. Kami tidak mengumpulkan atau membaca isi pesan pribadi Anda.\n\n" +
-                        "Apakah Anda setuju untuk memberikan izin ini?")
-                .setPositiveButton("Setuju", (dialog, which) -> {
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (24 * getResources().getDisplayMetrics().density);
+        layout.setPadding(padding, padding, padding, padding);
+
+        TextView message = new TextView(requireContext());
+        // FORMAT WAJIB GOOGLE: Menjelaskan penggunaan Accessibility API
+        message.setText("Aplikasi TamengTautan menggunakan AccessibilityService API untuk mengamati layar Anda guna mendeteksi tautan (URL) berbahaya yang muncul di aplikasi lain (seperti WhatsApp atau Browser) secara real-time.\n\n" +
+                "DATA YANG DIAMBIL:\n" +
+                "• Informasi Pribadi Lainnya: Berupa teks URL yang tampil di layar.\n" +
+                "• ID Perangkat: Untuk identifikasi unik dalam basis data penelitian.\n\n" +
+                "PENGGUNAAN DATA:\n" +
+                "Data ini ditransmisikan ke server kami untuk keperluan analisis statistik dalam penelitian SKRIPSI saya. Kami tidak membaca pesan pribadi atau data sensitif lainnya.\n\n" +
+                "Layanan ini wajib diaktifkan agar fitur perlindungan phishing berfungsi.");
+        message.setTextSize(15f);
+
+        CheckBox checkBox = new CheckBox(requireContext());
+        checkBox.setText("Saya mengizinkan penggunaan AccessibilityService API untuk penelitian ini.");
+        checkBox.setPadding(0, 20, 0, 0);
+
+        layout.addView(message);
+        layout.addView(checkBox);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Izin AccessibilityService API")
+                .setView(layout)
+                .setCancelable(false)
+                .setPositiveButton("Lanjutkan ke Pengaturan", (d, which) -> {
                     openAccessibilitySettings();
                 })
-                .setNegativeButton("Tolak", (dialog, which) -> {
+                .setNegativeButton("Tolak", (d, which) -> {
+                    // Reset switch jika ditolak
                     switchDetection.setOnCheckedChangeListener(null);
                     switchDetection.setChecked(false);
                     switchDetection.setOnCheckedChangeListener(detectionListener);
-                    tvDetectionStatus.setText("Deteksi real-time (NONAKTIF)");
                 })
-                .setCancelable(false) // Wajib false agar user tidak bisa menutup dengan klik di luar dialog
-                .show();
+                .create();
+
+        dialog.show();
+
+        // KUNCI TOMBOL: Harus centang dulu baru bisa lanjut ke setting HP
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked);
+        });
     }
 
     // PENGUNGKAPAN UNTUK OVERLAY

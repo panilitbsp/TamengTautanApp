@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.CheckBox;
+import androidx.appcompat.app.AlertDialog;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -45,36 +50,55 @@ public class MainActivity extends AppCompatActivity {
         // Tentukan tab awal
         openInitialTabFromIntent(getIntent());
 
-        // 🔥 TAMPILKAN DIALOG T&C SAAT PERTAMA KALI DIBUKA
+        // TAMPILKAN DIALOG T&C SAAT PERTAMA KALI DIBUKA
         checkAndShowTermsAndConditions();
     }
 
-    // 🔥 METHOD UNTUK MENAMPILKAN T&C
-    // 🔥 METHOD UNTUK MENAMPILKAN T&C
+    // METHOD UNTUK MENAMPILKAN T&C
     private void checkAndShowTermsAndConditions() {
         SharedPreferences prefs = getSharedPreferences("TamengPrefs", MODE_PRIVATE);
         boolean isAgreed = prefs.getBoolean("tc_agreed", false);
 
         if (!isAgreed) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Persetujuan Pengumpulan Data")
-                    .setMessage("TamengTautan adalah aplikasi penelitian (skripsi). Untuk berfungsi, aplikasi ini memerlukan izin AccessibilityService API guna memindai URL di layar secara real-time.\n\n" +
-                            "Aplikasi mengumpulkan:\n" +
-                            "• Informasi Pribadi Lainnya (URL yang terdeteksi).\n" +
-                            "• ID Perangkat atau pengenal lainnya (Device ID).\n\n" +
-                            "Data ini dikumpulkan secara aman untuk analisis statistik skripsi. Klik 'Setuju' untuk melanjutkan, atau baca Kebijakan Privasi kami.")
-                    .setPositiveButton("Setuju", (dialog, which) -> {
+            // Pembuatan layout secara dinamis untuk menyisipkan Checkbox
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            int padding = (int) (24 * getResources().getDisplayMetrics().density);
+            layout.setPadding(padding, padding, padding, padding);
+
+            TextView message = new TextView(this);
+            // FORMAT WAJIB: [Aplikasi] mengumpulkan [Data] untuk mengaktifkan [Fitur]
+            message.setText("TamengTautan mengumpulkan dan mentransmisikan data Informasi Pribadi Lainnya (URL/tautan yang terdeteksi di layar) dan ID Perangkat (Device Identifiers) untuk mengaktifkan fitur deteksi phishing secara real-time guna melindungi Anda dari ancaman penipuan.\n\n" +
+                    "PENGUNGKAPAN PENELITIAN:\n" +
+                    "Seluruh data yang dikumpulkan digunakan secara anonim murni untuk keperluan penelitian skripsi (akademis) mengenai keamanan siber. Data dikirimkan secara aman melalui enkripsi HTTPS.\n\n" +
+                    "Informasi selengkapnya dapat dibaca di dalam aplikasi ini pada menu Kebijakan Privasi.");
+            message.setTextSize(15f);
+            message.setTextColor(getResources().getColor(android.R.color.black));
+
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText("Saya setuju dengan pengumpulan data untuk keperluan penelitian skripsi ini.");
+            checkBox.setPadding(0, 20, 0, 0);
+
+            layout.addView(message);
+            layout.addView(checkBox);
+
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                    .setTitle("Persetujuan Data & Penelitian")
+                    .setView(layout)
+                    .setCancelable(false) // User tidak bisa klik di luar dialog untuk menutup
+                    .setPositiveButton("Setuju", (d, which) -> {
                         prefs.edit().putBoolean("tc_agreed", true).apply();
                     })
-                    .setNeutralButton("Kebijakan Privasi", (dialog, which) -> {
-                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://tamengtautan.vercel.app/privacypolicy"));
-                        startActivity(i);
-                    })
-                    .setNegativeButton("Tolak & Keluar", (dialog, which) -> {
-                        finishAffinity();
-                    })
-                    .setCancelable(false)
-                    .show();
+                    .setNegativeButton("Keluar", (d, which) -> finishAffinity())
+                    .create();
+
+            dialog.show();
+
+            // KUNCI TOMBOL: Tombol 'Setuju' mati sampai Checkbox dicentang
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked);
+            });
         }
     }
 
