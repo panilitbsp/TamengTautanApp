@@ -23,9 +23,10 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.slider.Slider; // 🔥 Penting: Import Slider
+import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.IOException;
 
@@ -228,12 +229,13 @@ public class DetectionFragment extends Fragment {
             if (isChecked) {
                 tvDetectionStatus.setText("Deteksi real-time (AKTIF)");
 
+                // 1. Cek Aksesibilitas
                 if (!isAccessibilityServiceEnabled(requireContext(), TamengAccessibilityService.class)) {
-                    openAccessibilitySettings();
+                    showAccessibilityDisclosureDialog(); // Panggil Dialog Dulu!
                 }
-
-                if (!canDrawOverlays()) {
-                    openOverlaySettings();
+                // 2. Cek Overlay
+                else if (!canDrawOverlays()) {
+                    showOverlayDisclosureDialog(); // Panggil Dialog Dulu!
                 }
 
             } else {
@@ -242,6 +244,43 @@ public class DetectionFragment extends Fragment {
         };
 
         switchDetection.setOnCheckedChangeListener(detectionListener);
+    }
+
+    // 🔥 Tambahkan Method Dialog Aksesibilitas
+    private void showAccessibilityDisclosureDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Izin Aksesibilitas Diperlukan")
+                .setMessage("Aplikasi TamengTautan menggunakan layanan Aksesibilitas (AccessibilityService) untuk memindai dan membaca tautan (URL) yang muncul di layar Anda secara real-time. Hal ini bertujuan murni untuk mendeteksi bahaya phishing dan melindungi Anda.\n\nKami TIDAK mengumpulkan, menyimpan, atau menjual data pribadi Anda.")
+                .setPositiveButton("Mengerti & Lanjutkan", (dialog, which) -> {
+                    openAccessibilitySettings();
+                })
+                .setNegativeButton("Batal", (dialog, which) -> {
+                    // Kembalikan switch ke posisi mati jika user menolak
+                    switchDetection.setOnCheckedChangeListener(null);
+                    switchDetection.setChecked(false);
+                    switchDetection.setOnCheckedChangeListener(detectionListener);
+                    tvDetectionStatus.setText("Deteksi real-time (NONAKTIF)");
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    // 🔥 Tambahkan Method Dialog Overlay
+    private void showOverlayDisclosureDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Izin Tampilkan di Atas Aplikasi Lain")
+                .setMessage("TamengTautan membutuhkan izin ini untuk menampilkan pop-up peringatan berwarna merah langsung di layar Anda ketika tautan berbahaya terdeteksi.")
+                .setPositiveButton("Mengerti & Lanjutkan", (dialog, which) -> {
+                    openOverlaySettings();
+                })
+                .setNegativeButton("Batal", (dialog, which) -> {
+                    switchDetection.setOnCheckedChangeListener(null);
+                    switchDetection.setChecked(false);
+                    switchDetection.setOnCheckedChangeListener(detectionListener);
+                    tvDetectionStatus.setText("Deteksi real-time (NONAKTIF)");
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private boolean isAccessibilityServiceEnabled() {

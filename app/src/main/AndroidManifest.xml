@@ -6,54 +6,37 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
-
-    <!-- 🔍 App yang boleh “kelihatan” ke PackageManager -->
     <queries>
-        <!-- SMS / Messages -->
         <package android:name="com.google.android.apps.messaging" />
         <package android:name="com.samsung.android.messaging" />
 
-        <!-- WhatsApp -->
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
 
-        <!-- Instagram + Threads -->
         <package android:name="com.instagram.android" />
-        <package android:name="com.instagram.barcelona" /> <!-- Threads -->
-
-        <!-- Facebook & Messenger -->
-        <package android:name="com.facebook.orca" />
+        <package android:name="com.instagram.barcelona" /> <package android:name="com.facebook.orca" />
         <package android:name="com.facebook.katana" />
         <package android:name="com.facebook.mlite" />
 
-        <!-- Telegram, Line, KakaoTalk, WeChat -->
         <package android:name="org.telegram.messenger" />
         <package android:name="jp.naver.line.android" />
         <package android:name="com.kakao.talk" />
         <package android:name="com.tencent.mm" />
 
-        <!-- Viber, Signal, Discord, Snapchat -->
         <package android:name="com.viber.voip" />
         <package android:name="org.thoughtcrime.securesms" />
         <package android:name="com.discord" />
         <package android:name="com.snapchat.android" />
 
-        <!-- X (Twitter) -->
         <package android:name="com.twitter.android" />
 
-        <!-- TikTok -->
         <package android:name="com.zhiliaoapp.musically" />
         <package android:name="com.ss.android.ugc.trill" />
 
-        <!-- Email / kerja -->
         <package android:name="com.google.android.gm" />
         <package android:name="com.Slack" />
         <package android:name="com.microsoft.teams" />
 
-        <!-- Meeting apps -->
         <package android:name="us.zoom.videomeetings" />
         <package android:name="com.google.android.apps.meetings" />
     </queries>
@@ -69,7 +52,6 @@
         android:theme="@style/Theme.TamengTautan"
         tools:targetApi="31">
 
-        <!-- 🔹 MainActivity: singleTop + soft input -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

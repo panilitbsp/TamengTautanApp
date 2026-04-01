@@ -109,17 +109,19 @@ public class UrlOnnxClassifier {
 
         currentModel = model;
 
-        // tentukan nama file & input name ONNX
+        // tentukan nama file ONNX dari enum
         String assetFile = model.getAssetFileName();
-        if (model == DetectionModel.XGBOOST) {
-            currentInputName = "input";        // sesuai model XGBoost lama
-        } else {
-            currentInputName = "float_input";  // sesuai initial_type di skl2onnx (RF)
-        }
 
         byte[] modelBytes = loadModelFromAssets(appContext, assetFile);
         OrtSession.SessionOptions options = new OrtSession.SessionOptions();
         session = env.createSession(modelBytes, options);
+
+        // ====================================================================
+        // THE MAGIC FIX: DETEKSI NAMA INPUT SECARA OTOMATIS ANTI-FORCE CLOSE
+        // ====================================================================
+        // Kita ambil langsung nama input pertama yang diminta oleh file model ONNX-nya
+        currentInputName = session.getInputNames().iterator().next();
+        // ====================================================================
 
         Log.d(TAG, "Model ONNX ter-load: " + model.name()
                 + " | asset=" + assetFile
