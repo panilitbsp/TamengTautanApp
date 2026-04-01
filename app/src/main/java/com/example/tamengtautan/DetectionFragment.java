@@ -46,7 +46,7 @@ public class DetectionFragment extends Fragment {
     private MaterialSwitch switchDetection;
     private MaterialAutoCompleteTextView dropdownAlgorithm;
     private TextView tvThresholdInfo;
-    private Slider sliderRisk; // 🔥 Variabel Slider Baru
+    private Slider sliderRisk;
     private TextView tvShortUrlResult;
     private TextInputEditText etShortUrl;
     private TextView tvDetectionStatus;
@@ -88,7 +88,7 @@ public class DetectionFragment extends Fragment {
         switchDetection   = view.findViewById(R.id.switchDetection);
         dropdownAlgorithm = view.findViewById(R.id.dropdownAlgorithm);
         tvThresholdInfo   = view.findViewById(R.id.tvThresholdInfo);
-        sliderRisk        = view.findViewById(R.id.sliderRisk); // 🔥 Binding Slider
+        sliderRisk        = view.findViewById(R.id.sliderRisk);
         tvShortUrlResult  = view.findViewById(R.id.tvShortUrlResult);
         etShortUrl        = view.findViewById(R.id.etShortUrl);
         tvDetectionStatus = view.findViewById(R.id.tvDetectionStatus);
@@ -96,7 +96,7 @@ public class DetectionFragment extends Fragment {
 
         // Setup Logic
         setupAlgorithmDropdown();
-        setupSliderLogic(); // 🔥 Setup Slider Baru
+        setupSliderLogic();
         setupShortLinkTest(btnCheckShortUrl);
         setupSwitchLogic();
 
@@ -112,7 +112,7 @@ public class DetectionFragment extends Fragment {
         syncSwitchStatus();
     }
 
-    // ================== LOGIC SLIDER (BARU) ==================
+    // ================== LOGIC SLIDER ==================
 
     private void setupSliderLogic() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
@@ -180,8 +180,6 @@ public class DetectionFragment extends Fragment {
 
         dropdownAlgorithm.setText(algoLabels[selectedIndex], false);
 
-        // CATATAN: Baris setText threshold manual DIHAPUS, karena sekarang diurus oleh setupSliderLogic
-
         dropdownAlgorithm.setOnItemClickListener((parent, view, position, id) -> {
             String value = algoValues[position];
             prefs.edit().putString("pref_model_algorithm", value).apply();
@@ -229,13 +227,13 @@ public class DetectionFragment extends Fragment {
             if (isChecked) {
                 tvDetectionStatus.setText("Deteksi real-time (AKTIF)");
 
-                // 1. Cek Aksesibilitas
+                // 1. Cek Aksesibilitas dengan Prominent Disclosure
                 if (!isAccessibilityServiceEnabled(requireContext(), TamengAccessibilityService.class)) {
-                    showAccessibilityDisclosureDialog(); // Panggil Dialog Dulu!
+                    showAccessibilityDisclosureDialog();
                 }
                 // 2. Cek Overlay
                 else if (!canDrawOverlays()) {
-                    showOverlayDisclosureDialog(); // Panggil Dialog Dulu!
+                    showOverlayDisclosureDialog();
                 }
 
             } else {
@@ -246,16 +244,19 @@ public class DetectionFragment extends Fragment {
         switchDetection.setOnCheckedChangeListener(detectionListener);
     }
 
-    // 🔥 Tambahkan Method Dialog Aksesibilitas
+    // 🔥 PENGUNGKAPAN YANG JELAS (PROMINENT DISCLOSURE) UNTUK AKSESIBILITAS
     private void showAccessibilityDisclosureDialog() {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Izin Aksesibilitas Diperlukan")
-                .setMessage("Aplikasi TamengTautan menggunakan layanan Aksesibilitas (AccessibilityService) untuk memindai dan membaca tautan (URL) yang muncul di layar Anda secara real-time. Hal ini bertujuan murni untuk mendeteksi bahaya phishing dan melindungi Anda.\n\nKami TIDAK mengumpulkan, menyimpan, atau menjual data pribadi Anda.")
-                .setPositiveButton("Mengerti & Lanjutkan", (dialog, which) -> {
+                .setTitle("Izin Layanan Aksesibilitas")
+                .setMessage("TamengTautan menggunakan AccessibilityService API untuk memindai tautan (URL) di layar Anda secara real-time guna mendeteksi ancaman phishing.\n\n" +
+                        "Untuk keperluan penelitian skripsi, aplikasi ini akan mengumpulkan:\n" +
+                        "1. Tautan (URL) yang dipindai.\n" +
+                        "2. ID Perangkat (Device ID) atau data anonim.\n\n" +
+                        "Aplikasi tidak mengumpulkan isi pesan Anda. Izinkan penggunaan Aksesibilitas?")
+                .setPositiveButton("Setuju & Lanjutkan", (dialog, which) -> {
                     openAccessibilitySettings();
                 })
-                .setNegativeButton("Batal", (dialog, which) -> {
-                    // Kembalikan switch ke posisi mati jika user menolak
+                .setNegativeButton("Tolak", (dialog, which) -> {
                     switchDetection.setOnCheckedChangeListener(null);
                     switchDetection.setChecked(false);
                     switchDetection.setOnCheckedChangeListener(detectionListener);
@@ -265,15 +266,15 @@ public class DetectionFragment extends Fragment {
                 .show();
     }
 
-    // 🔥 Tambahkan Method Dialog Overlay
+    // 🔥 PENGUNGKAPAN UNTUK OVERLAY
     private void showOverlayDisclosureDialog() {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Izin Tampilkan di Atas Aplikasi Lain")
-                .setMessage("TamengTautan membutuhkan izin ini untuk menampilkan pop-up peringatan berwarna merah langsung di layar Anda ketika tautan berbahaya terdeteksi.")
-                .setPositiveButton("Mengerti & Lanjutkan", (dialog, which) -> {
+                .setTitle("Izin Tampilan di Atas Aplikasi Lain")
+                .setMessage("TamengTautan memerlukan izin ini agar dapat langsung menampilkan peringatan pop-up berwarna merah di layar Anda saat bahaya terdeteksi. Apakah Anda mengizinkan?")
+                .setPositiveButton("Setuju & Lanjutkan", (dialog, which) -> {
                     openOverlaySettings();
                 })
-                .setNegativeButton("Batal", (dialog, which) -> {
+                .setNegativeButton("Tolak", (dialog, which) -> {
                     switchDetection.setOnCheckedChangeListener(null);
                     switchDetection.setChecked(false);
                     switchDetection.setOnCheckedChangeListener(detectionListener);
@@ -346,7 +347,7 @@ public class DetectionFragment extends Fragment {
         }
     }
 
-    // ================== SHORT LINK TEST (UPDATE DENGAN SLIDER) ==================
+    // ================== SHORT LINK TEST ==================
 
     private UrlOnnxClassifier getManualClassifier(Context appContext) throws IOException, OrtException {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
@@ -417,12 +418,9 @@ public class DetectionFragment extends Fragment {
                     if (prob > 1f) prob = 1f;
                     int percent = Math.round(prob * 100f);
 
-                    // 🔥 UPDATE: Mengambil ambang batas dari SLIDER (Preference)
+                    // Mengambil ambang batas dari SLIDER (Preference)
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
                     float currentThreshold = prefs.getFloat(PREF_RISK_THRESHOLD, 0.5f);
-
-                    // Logic override manual untuk sekolah/google jika diperlukan bisa ditambah di sini,
-                    // tapi untuk test manual biasanya kita pakai raw value slider saja agar user tahu efek slidernya.
 
                     String mappedLabel = (prob >= currentThreshold) ? "HIGH" : "LOW";
 
