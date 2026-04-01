@@ -23,34 +23,36 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
+    // Variabel untuk melacak tab aktif
+    private int currentNavId = R.id.nav_detection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 🔹 set toolbar sebagai ActionBar
         MaterialToolbar toolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(toolbar);
 
         bottomNav = findViewById(R.id.bottom_nav);
 
         bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_detection) {
+            // variabel tracking
+            currentNavId = item.getItemId();
+
+            if (currentNavId == R.id.nav_detection) {
                 loadFragment(new DetectionFragment());
+                invalidateOptionsMenu(); // TAMBAHAN: Wajib dipanggil untuk me-refresh menu
                 return true;
-            } else if (id == R.id.nav_history) {
+            } else if (currentNavId == R.id.nav_history) {
                 loadFragment(new HistoryFragment());
+                invalidateOptionsMenu(); // TAMBAHAN: Wajib dipanggil untuk me-refresh menu
                 return true;
             }
             return false;
         });
 
-        // Tentukan tab awal
         openInitialTabFromIntent(getIntent());
-
-        // TAMPILKAN DIALOG T&C SAAT PERTAMA KALI DIBUKA
         checkAndShowTermsAndConditions();
     }
 
@@ -107,6 +109,17 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    // TAMBAHKAN BLOCK METHOD INI
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem privacyItem = menu.findItem(R.id.action_privacy);
+        if (privacyItem != null) {
+            // Sembunyikan icon privacy jika sedang berada di tab Riwayat (History)
+            privacyItem.setVisible(currentNavId != R.id.nav_history);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
