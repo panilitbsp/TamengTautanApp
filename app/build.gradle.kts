@@ -25,7 +25,7 @@ android {
     // Agar library ONNX Runtime lolos standar 16KB
     packaging {
         jniLibs {
-            useLegacyPackaging = false
+            useLegacyPackaging = true
         }
     }
 
@@ -59,7 +59,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
 
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
