@@ -25,14 +25,18 @@ android {
     // UNTUK LOLOS STANDAR 16 KB
     packaging {
         jniLibs {
-            useLegacyPackaging = false
+            useLegacyPackaging = true
         }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false      // Memadatkan kode Java/Kotlin
-            isShrinkResources = false   // Membuang gambar/layout yang tidak terpakai
+            // Enables code-related app optimization.
+            isMinifyEnabled = true
+
+            // Enables resource shrinking.
+            isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -62,7 +66,7 @@ dependencies {
 
     // Supabase
     implementation ("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation ("com.google.code.gson:gson:2.10.1")
+    //implementation ("com.google.code.gson:gson:2.10.1")
 
     // Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.11.0")

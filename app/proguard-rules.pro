@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Menjaga nama class dan metode asli untuk model data TamengTautan agar tidak rusak saat di-parsing Gson
+-keep class com.example.tamengtautan.** { *; }
+-keep class com.siva.tamengtautan.** { *; }
+
+# Aturan Pengecualian untuk Gson
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.Unsafe
+-keep class com.google.gson.** { *; }
+
+# Aturan Pengecualian untuk Retrofit & OkHttp (Koneksi Supabase)
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Exceptions
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
+
+# Aturan Pengecualian untuk Machine Learning ONNX Runtime
+-dontwarn ai.onnxruntime.**
+-keep class ai.onnxruntime.** { *; }
