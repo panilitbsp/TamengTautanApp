@@ -10,18 +10,22 @@ android {
         applicationId = "com.siva.tamengtautan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "4.0"
+        versionCode = 5
+        versionName = "5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // PERUBAHAN 1: Filter Arsitektur CPU (Untuk Menghemat Memori)
+        // Filter Arsitektur CPU (Untuk Menghemat Memori)
         ndk {
-            // Hanya menyertakan library native untuk HP fisik (ARM)
-            // Ini akan membuang file x86 (Emulator PC) yang ukurannya sangat besar
-            // Jika mau test di Emulator Laptop, tambahkan "x86_64" sementara waktu.
             abiFilters.add("arm64-v8a")
             abiFilters.add("armeabi-v7a")
+        }
+    }
+
+    // UNTUK LOLOS STANDAR 16 KB
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 
