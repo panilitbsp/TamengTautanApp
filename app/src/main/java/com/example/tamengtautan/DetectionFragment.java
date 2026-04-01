@@ -244,16 +244,17 @@ public class DetectionFragment extends Fragment {
         switchDetection.setOnCheckedChangeListener(detectionListener);
     }
 
-    // 🔥 PENGUNGKAPAN YANG JELAS (PROMINENT DISCLOSURE) UNTUK AKSESIBILITAS
+    // PROMINENT DISCLOSURE
     private void showAccessibilityDisclosureDialog() {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Izin Layanan Aksesibilitas")
-                .setMessage("TamengTautan menggunakan AccessibilityService API untuk memindai tautan (URL) di layar Anda secara real-time guna mendeteksi ancaman phishing.\n\n" +
-                        "Untuk keperluan penelitian skripsi, aplikasi ini akan mengumpulkan:\n" +
-                        "1. Tautan (URL) yang dipindai.\n" +
-                        "2. ID Perangkat (Device ID) atau data anonim.\n\n" +
-                        "Aplikasi tidak mengumpulkan isi pesan Anda. Izinkan penggunaan Aksesibilitas?")
-                .setPositiveButton("Setuju & Lanjutkan", (dialog, which) -> {
+                .setTitle("Pemberitahuan Penting: Izin Aksesibilitas")
+                .setMessage("Aplikasi TamengTautan wajib menggunakan AccessibilityService API untuk mengamati layar Anda guna memindai tautan (URL) yang muncul di aplikasi lain secara real-time. Fitur ini merupakan fungsi inti aplikasi untuk mendeteksi dan melindungi Anda dari ancaman phishing.\n\n" +
+                        "Melalui AccessibilityService API, aplikasi ini mengumpulkan data berikut untuk keperluan penelitian skripsi:\n" +
+                        "1. Informasi Pribadi Lainnya (Other personal info): Berupa tautan (URL) yang terdeteksi di layar Anda.\n" +
+                        "2. ID Perangkat atau pengenal lainnya (Device or other identifiers): Berupa ID Perangkat anonim.\n\n" +
+                        "Data tersebut digunakan secara eksklusif untuk fitur perlindungan phishing dan analisis penelitian. Kami tidak mengumpulkan atau membaca isi pesan pribadi Anda.\n\n" +
+                        "Tekan 'Setuju' untuk menyetujui pengumpulan data ini dan mengaktifkan layanan di Pengaturan.")
+                .setPositiveButton("Setuju", (dialog, which) -> {
                     openAccessibilitySettings();
                 })
                 .setNegativeButton("Tolak", (dialog, which) -> {
@@ -262,11 +263,11 @@ public class DetectionFragment extends Fragment {
                     switchDetection.setOnCheckedChangeListener(detectionListener);
                     tvDetectionStatus.setText("Deteksi real-time (NONAKTIF)");
                 })
-                .setCancelable(false)
+                .setCancelable(false) // Wajib false agar tidak bisa ditutup dengan mengetuk di luar dialog
                 .show();
     }
 
-    // 🔥 PENGUNGKAPAN UNTUK OVERLAY
+    // PENGUNGKAPAN UNTUK OVERLAY
     private void showOverlayDisclosureDialog() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Izin Tampilan di Atas Aplikasi Lain")

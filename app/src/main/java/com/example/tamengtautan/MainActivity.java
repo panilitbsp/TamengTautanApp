@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 🔥 METHOD UNTUK MENAMPILKAN T&C
+    // 🔥 METHOD UNTUK MENAMPILKAN T&C
     private void checkAndShowTermsAndConditions() {
         SharedPreferences prefs = getSharedPreferences("TamengPrefs", MODE_PRIVATE);
         boolean isAgreed = prefs.getBoolean("tc_agreed", false);
@@ -57,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
         if (!isAgreed) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Persetujuan Pengumpulan Data")
-                    .setMessage("Aplikasi TamengTautan adalah sarana penelitian (skripsi). Untuk berfungsi, aplikasi ini menggunakan Layanan Aksesibilitas guna membaca tautan (URL) di layar Anda secara real-time.\n\n" +
+                    .setMessage("Aplikasi TamengTautan adalah sarana penelitian (skripsi). Untuk berfungsi, aplikasi ini menggunakan AccessibilityService API guna membaca tautan (URL) di layar Anda secara real-time.\n\n" +
                             "Kami mengumpulkan data berupa:\n" +
-                            "• Tautan (URL) yang terdeteksi.\n" +
-                            "• ID Perangkat (Device ID) anonim.\n\n" +
+                            "• Informasi Pribadi Lainnya (Other personal info): Tautan (URL) yang terdeteksi.\n" +
+                            "• ID Perangkat atau pengenal lainnya (Device or other identifiers): ID anonim untuk analitik.\n\n" +
                             "Data ini murni untuk analisis statistik skripsi. Lanjutkan jika Anda setuju, atau baca Kebijakan Privasi selengkapnya.")
                     .setPositiveButton("Setuju", (dialog, which) -> {
                         prefs.edit().putBoolean("tc_agreed", true).apply();
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 🔥 MENGATUR MENU ICON PRIVACY DI HEADER
+    // ICON PRIVACY DI HEADER
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
