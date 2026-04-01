@@ -247,13 +247,13 @@ public class DetectionFragment extends Fragment {
     // PROMINENT DISCLOSURE
     private void showAccessibilityDisclosureDialog() {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Pemberitahuan Penting: Izin Aksesibilitas")
-                .setMessage("Aplikasi TamengTautan wajib menggunakan AccessibilityService API untuk mengamati layar Anda guna memindai tautan (URL) yang muncul di aplikasi lain secara real-time. Fitur ini merupakan fungsi inti aplikasi untuk mendeteksi dan melindungi Anda dari ancaman phishing.\n\n" +
-                        "Melalui AccessibilityService API, aplikasi ini mengumpulkan data berikut untuk keperluan penelitian skripsi:\n" +
-                        "1. Informasi Pribadi Lainnya (Other personal info): Berupa tautan (URL) yang terdeteksi di layar Anda.\n" +
-                        "2. ID Perangkat atau pengenal lainnya (Device or other identifiers): Berupa ID Perangkat anonim.\n\n" +
-                        "Data tersebut digunakan secara eksklusif untuk fitur perlindungan phishing dan analisis penelitian. Kami tidak mengumpulkan atau membaca isi pesan pribadi Anda.\n\n" +
-                        "Tekan 'Setuju' untuk menyetujui pengumpulan data ini dan mengaktifkan layanan di Pengaturan.")
+                .setTitle("Pemberitahuan Penting: Layanan Aksesibilitas")
+                .setMessage("Aplikasi TamengTautan menggunakan AccessibilityService API untuk memantau layar Anda guna memindai tautan (URL) yang muncul di aplikasi lain secara real-time. Fitur ini merupakan fungsi inti untuk mendeteksi ancaman phishing dan melindungi Anda dari tautan berbahaya.\n\n" +
+                        "Aplikasi ini mengumpulkan dan mentransmisikan data berikut melalui AccessibilityService API:\n" +
+                        "• Informasi Pribadi Lainnya (Other personal info): Berupa tautan (URL) yang terdeteksi di layar Anda.\n" +
+                        "• ID Perangkat atau pengenal lainnya (Device or other identifiers): Berupa ID unik perangkat Anda.\n\n" +
+                        "Data tersebut digunakan secara eksklusif untuk fitur deteksi phishing dan keperluan penelitian skripsi. Data dikirimkan secara aman melalui enkripsi HTTPS ke server kami. Kami tidak mengumpulkan atau membaca isi pesan pribadi Anda.\n\n" +
+                        "Apakah Anda setuju untuk memberikan izin ini?")
                 .setPositiveButton("Setuju", (dialog, which) -> {
                     openAccessibilitySettings();
                 })
@@ -263,7 +263,7 @@ public class DetectionFragment extends Fragment {
                     switchDetection.setOnCheckedChangeListener(detectionListener);
                     tvDetectionStatus.setText("Deteksi real-time (NONAKTIF)");
                 })
-                .setCancelable(false) // Wajib false agar tidak bisa ditutup dengan mengetuk di luar dialog
+                .setCancelable(false) // Wajib false agar user tidak bisa menutup dengan klik di luar dialog
                 .show();
     }
 

@@ -58,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
         if (!isAgreed) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Persetujuan Pengumpulan Data")
-                    .setMessage("Aplikasi TamengTautan adalah sarana penelitian (skripsi). Untuk berfungsi, aplikasi ini menggunakan AccessibilityService API guna membaca tautan (URL) di layar Anda secara real-time.\n\n" +
-                            "Kami mengumpulkan data berupa:\n" +
-                            "• Informasi Pribadi Lainnya (Other personal info): Tautan (URL) yang terdeteksi.\n" +
-                            "• ID Perangkat atau pengenal lainnya (Device or other identifiers): ID anonim untuk analitik.\n\n" +
-                            "Data ini murni untuk analisis statistik skripsi. Lanjutkan jika Anda setuju, atau baca Kebijakan Privasi selengkapnya.")
+                    .setMessage("TamengTautan adalah aplikasi penelitian (skripsi). Untuk berfungsi, aplikasi ini memerlukan izin AccessibilityService API guna memindai URL di layar secara real-time.\n\n" +
+                            "Aplikasi mengumpulkan:\n" +
+                            "• Informasi Pribadi Lainnya (URL yang terdeteksi).\n" +
+                            "• ID Perangkat atau pengenal lainnya (Device ID).\n\n" +
+                            "Data ini dikumpulkan secara aman untuk analisis statistik skripsi. Klik 'Setuju' untuk melanjutkan, atau baca Kebijakan Privasi kami.")
                     .setPositiveButton("Setuju", (dialog, which) -> {
                         prefs.edit().putBoolean("tc_agreed", true).apply();
                     })

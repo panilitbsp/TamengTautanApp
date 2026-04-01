@@ -10,32 +10,29 @@ android {
         applicationId = "com.siva.tamengtautan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "5.0"
+        versionCode = 6
+        versionName = "6.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // Filter Arsitektur CPU (Untuk Menghemat Memori)
         ndk {
             abiFilters.add("arm64-v8a")
             abiFilters.add("armeabi-v7a")
         }
     }
 
-    // UNTUK LOLOS STANDAR 16 KB
+    // Agar library ONNX Runtime lolos standar 16KB
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = false
         }
     }
 
     buildTypes {
         release {
-            // Enables code-related app optimization.
-            isMinifyEnabled = true
+            // code-related app optimization.
+            isMinifyEnabled = false
 
-            // Enables resource shrinking.
-            isShrinkResources = true
+            // resource shrinking.
+            isShrinkResources = false
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
