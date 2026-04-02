@@ -4,9 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.CheckBox;
@@ -23,7 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
-    // Variabel untuk melacak tab aktif
     private int currentNavId = R.id.nav_detection;
 
     @Override
@@ -37,66 +37,104 @@ public class MainActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottom_nav);
 
         bottomNav.setOnItemSelectedListener(item -> {
-            // variabel tracking
             currentNavId = item.getItemId();
 
             if (currentNavId == R.id.nav_detection) {
                 loadFragment(new DetectionFragment());
-                invalidateOptionsMenu(); // TAMBAHAN: Wajib dipanggil untuk me-refresh menu
+                invalidateOptionsMenu();
                 return true;
             } else if (currentNavId == R.id.nav_history) {
                 loadFragment(new HistoryFragment());
-                invalidateOptionsMenu(); // TAMBAHAN: Wajib dipanggil untuk me-refresh menu
+                invalidateOptionsMenu();
                 return true;
             }
             return false;
         });
 
         openInitialTabFromIntent(getIntent());
-        checkAndShowTermsAndConditions();
+        checkAndShowAccessibilityDisclosure();
     }
 
-    // METHOD UNTUK MENAMPILKAN T&C
-    private void checkAndShowTermsAndConditions() {
-        SharedPreferences prefs = getSharedPreferences("TamengPrefs", MODE_PRIVATE);
-        boolean isAgreed = prefs.getBoolean("tc_agreed", false);
+    // Helper untuk mengecek apakah Accessibility Service sudah aktif atau belum
+    private boolean isAccessibilityServiceEnabled() {
+        int accessibilityEnabled = 0;
+        final String service = getPackageName() + "/" + TamengAccessibilityService.class.getCanonicalName();
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(
+                    getApplicationContext().getContentResolver(),
+                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+        } catch (Settings.SettingNotFoundException e) {
+            // ignore
+        }
+        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+        if (accessibilityEnabled == 1) {
+            String settingValue = Settings.Secure.getString(
+                    getApplicationContext().getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (settingValue != null) {
+                mStringColonSplitter.setString(settingValue);
+                while (mStringColonSplitter.hasNext()) {
+                    String accessibilityService = mStringColonSplitter.next();
+                    if (accessibilityService.equalsIgnoreCase(service)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
-        if (!isAgreed) {
-            // Pembuatan layout secara dinamis untuk menyisipkan Checkbox
+    // PERBAIKAN: Dialog Pengungkapan Jelas (Prominent Disclosure)
+    private void checkAndShowAccessibilityDisclosure() {
+        SharedPreferences prefs = getSharedPreferences("TamengPrefs", MODE_PRIVATE);
+        boolean isAgreed = prefs.getBoolean("accessibility_agreed", false);
+
+        // Hanya tampilkan jika user belum setuju DAN service belum aktif di pengaturan
+        if (!isAgreed || !isAccessibilityServiceEnabled()) {
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);
             int padding = (int) (24 * getResources().getDisplayMetrics().density);
             layout.setPadding(padding, padding, padding, padding);
 
             TextView message = new TextView(this);
-            // FORMAT WAJIB: [Aplikasi] mengumpulkan [Data] untuk mengaktifkan [Fitur]
-            message.setText("TamengTautan mengumpulkan dan mentransmisikan data Informasi Pribadi Lainnya (URL/tautan yang terdeteksi di layar) dan ID Perangkat (Device Identifiers) untuk mengaktifkan fitur deteksi phishing secara real-time guna melindungi Anda dari ancaman penipuan.\n\n" +
-                    "PENGUNGKAPAN PENELITIAN:\n" +
-                    "Seluruh data yang dikumpulkan digunakan secara anonim murni untuk keperluan penelitian skripsi (akademis) mengenai keamanan siber. Data dikirimkan secara aman melalui enkripsi HTTPS.\n\n" +
-                    "Informasi selengkapnya dapat dibaca di dalam aplikasi ini pada menu Kebijakan Privasi.");
-            message.setTextSize(15f);
+
+            // TEKS WAJIB GOOGLE PLAY: Menyebutkan API, Data (ID Perangkat & Info Pribadi Lain), dan Tujuan
+            message.setText("PENGUNGKAPAN PENGGUNAAN ACCESSIBILITY API\n\n" +
+                    "TamengTautan menggunakan AccessibilityService API untuk dapat berfungsi dengan baik. \n\n" +
+                    "Melalui layanan AccessibilityService API ini, aplikasi kami mengumpulkan data berupa:\n" +
+                    "1. Info Pribadi Lainnya (URL atau tautan yang terdeteksi di layar Anda).\n" +
+                    "2. ID Perangkat atau lainnya (Device Identifiers).\n\n" +
+                    "Tujuan: Data ini dikumpulkan untuk mengaktifkan fitur perlindungan deteksi tautan phishing secara real-time dan untuk keperluan penelitian skripsi akademis mengenai keamanan siber. \n\n" +
+                    "Data Anda ditransmisikan secara aman. Kami tidak mengubah setelan pengguna atau melewati kontrol privasi Anda.");
+            message.setTextSize(14f);
             message.setTextColor(getResources().getColor(android.R.color.black));
 
             CheckBox checkBox = new CheckBox(this);
-            checkBox.setText("Saya setuju dengan pengumpulan data untuk keperluan penelitian skripsi ini.");
+            checkBox.setText("Saya setuju menggunakan AccessibilityService API dan setuju dengan pengumpulan data tersebut.");
             checkBox.setPadding(0, 20, 0, 0);
 
             layout.addView(message);
             layout.addView(checkBox);
 
             AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                    .setTitle("Persetujuan Data & Penelitian")
+                    .setTitle("Persetujuan Layanan & Data")
                     .setView(layout)
-                    .setCancelable(false) // User tidak bisa klik di luar dialog untuk menutup
-                    .setPositiveButton("Setuju", (d, which) -> {
-                        prefs.edit().putBoolean("tc_agreed", true).apply();
+                    .setCancelable(false) // Tidak bisa klik di luar untuk menutup
+                    .setPositiveButton("Setuju & Aktifkan", (d, which) -> {
+                        prefs.edit().putBoolean("accessibility_agreed", true).apply();
+                        // WAJIB: Setelah setuju, arahkan langsung ke pengaturan Android
+                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        startActivity(intent);
                     })
-                    .setNegativeButton("Keluar", (d, which) -> finishAffinity())
+                    .setNegativeButton("Tolak", (d, which) -> {
+                        // 2 Tombol diwajibkan: Jika ditolak, aplikasi keluar
+                        finishAffinity();
+                    })
                     .create();
 
             dialog.show();
 
-            // KUNCI TOMBOL: Tombol 'Setuju' mati sampai Checkbox dicentang
+            // Kunci tombol "Setuju & Aktifkan" hingga checkbox dicentang
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked);
@@ -104,19 +142,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ICON PRIVACY DI HEADER
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    // TAMBAHKAN BLOCK METHOD INI
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem privacyItem = menu.findItem(R.id.action_privacy);
         if (privacyItem != null) {
-            // Sembunyikan icon privacy jika sedang berada di tab Riwayat (History)
             privacyItem.setVisible(currentNavId != R.id.nav_history);
         }
         return super.onPrepareOptionsMenu(menu);
