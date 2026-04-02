@@ -257,28 +257,34 @@ public class DetectionFragment extends Fragment {
         layout.setPadding(padding, padding, padding, padding);
 
         TextView message = new TextView(requireContext());
-        // FORMAT WAJIB GOOGLE: Menjelaskan penggunaan Accessibility API
-        message.setText("Aplikasi TamengTautan menggunakan AccessibilityService API untuk mengamati layar Anda guna mendeteksi tautan (URL) berbahaya yang muncul di aplikasi lain (seperti WhatsApp atau Browser) secara real-time.\n\n" +
-                "DATA YANG DIAMBIL:\n" +
-                "• Informasi Pribadi Lainnya: Berupa teks URL yang tampil di layar.\n" +
-                "• ID Perangkat: Untuk identifikasi unik dalam basis data penelitian.\n\n" +
-                "PENGGUNAAN DATA:\n" +
-                "Data ini ditransmisikan ke server kami untuk keperluan analisis statistik dalam penelitian SKRIPSI saya. Kami tidak membaca pesan pribadi atau data sensitif lainnya.\n\n" +
-                "Layanan ini wajib diaktifkan agar fitur perlindungan phishing berfungsi.");
-        message.setTextSize(15f);
+
+        // FORMAT WAJIB GOOGLE: Disamakan persis dengan MainActivity untuk konsistensi
+        message.setText("PENGUNGKAPAN PENGGUNAAN ACCESSIBILITY API\n\n" +
+                "TamengTautan menggunakan AccessibilityService API untuk dapat berfungsi dengan baik mengamati layar Anda.\n\n" +
+                "Melalui layanan AccessibilityService API ini, aplikasi kami mengumpulkan data berupa:\n" +
+                "1. Info Pribadi Lainnya (URL atau tautan yang terdeteksi di layar Anda).\n" +
+                "2. ID Perangkat atau lainnya (Device Identifiers).\n\n" +
+                "Tujuan: Data ini dikumpulkan untuk mengaktifkan fitur perlindungan deteksi tautan phishing secara real-time dan untuk keperluan penelitian skripsi akademis mengenai keamanan siber. \n\n" +
+                "Data Anda ditransmisikan secara aman ke server kami. Kami tidak membaca pesan pribadi Anda.");
+        message.setTextSize(14f);
+        message.setTextColor(getResources().getColor(android.R.color.black));
 
         CheckBox checkBox = new CheckBox(requireContext());
-        checkBox.setText("Saya mengizinkan penggunaan AccessibilityService API untuk penelitian ini.");
+        checkBox.setText("Saya setuju menggunakan AccessibilityService API dan setuju dengan pengumpulan data tersebut.");
         checkBox.setPadding(0, 20, 0, 0);
 
         layout.addView(message);
         layout.addView(checkBox);
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Izin AccessibilityService API")
+                .setTitle("Izin Layanan & Data")
                 .setView(layout)
-                .setCancelable(false)
-                .setPositiveButton("Lanjutkan ke Pengaturan", (d, which) -> {
+                .setCancelable(false) // WAJIB: Mencegah pengguna menutup dialog tanpa memilih tombol
+                .setPositiveButton("Setuju & Pengaturan", (d, which) -> {
+                    // TAMBAHAN: Simpan status persetujuan ke SharedPreferences agar MainActivity juga tahu user sudah setuju
+                    requireContext().getSharedPreferences("TamengPrefs", android.content.Context.MODE_PRIVATE)
+                            .edit().putBoolean("accessibility_agreed", true).apply();
+
                     openAccessibilitySettings();
                 })
                 .setNegativeButton("Tolak", (d, which) -> {
